@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "ocr-api-4"
+version = "0.1.0"
+description = "The API design focuses on receiving lead data through a POST request and generating a comprehensive scope of work proposal utilizing two instances of OpenAI's GPT-4. The primary instance drafts the initial version, while the second instance refines the draft by incorporating proven strategies from previous successful documents. Below are the key components of the project, synthesized from the information gathered:"
+authors = ["AutoGPT <info@agpt.co>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.11"
+fastapi = "*"
+prisma = "*"
+pydantic = "*"
+uvicorn = "*"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

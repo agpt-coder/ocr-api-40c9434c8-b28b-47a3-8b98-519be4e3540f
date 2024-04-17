@@ -1,0 +1,92 @@
+// datasource db defines the database connection settings.
+// It is configured for PostgreSQL and uses an environment variable for the connection URL.
+// The 'extensions' feature enables the use of PostgreSQL-specific data types.
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+}
+
+// generator db configures Prisma Client settings.
+// It is set up to use Prisma Client Python with asyncio interface and specific features.
+generator db {
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
+  previewFeatures      = ["postgresqlExtensions"]
+}
+
+model Lead {
+  id          String   @id @default(dbgenerated("gen_random_uuid()"))
+  firstName   String
+  lastName    String
+  companyName String
+  budget      String
+  timeline    String
+  techUsed    String[]
+  createdAt   DateTime @default(now())
+  Drafts      Draft[]
+}
+
+model Draft {
+  id          String       @id @default(dbgenerated("gen_random_uuid()"))
+  content     String
+  isRefined   Boolean      @default(false)
+  leadId      String
+  Lead        Lead         @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  Refinements Refinement[]
+  Feedback    Feedback[]
+}
+
+model Refinement {
+  id         String    @id @default(dbgenerated("gen_random_uuid()"))
+  content    String
+  draftId    String
+  Draft      Draft     @relation(fields: [draftId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+  strategyId String?
+  Strategy   Strategy? @relation(fields: [strategyId], references: [id])
+}
+
+model Strategy {
+  id          String       @id @default(dbgenerated("gen_random_uuid()"))
+  description String
+  Refinements Refinement[]
+  createdAt   DateTime     @default(now())
+}
+
+model User {
+  id        String     @id @default(dbgenerated("gen_random_uuid()"))
+  email     String     @unique
+  password  String
+  role      UserRole
+  createdAt DateTime   @default(now())
+  Feedbacks Feedback[]
+  APIKeys   APIKey[]
+}
+
+model Feedback {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  content   String
+  userId    String
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  draftId   String?
+  Draft     Draft?   @relation(fields: [draftId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model APIKey {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  key       String   @unique
+  userId    String
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+enum UserRole {
+  Student
+  Tutor
+  Admin
+}
+
